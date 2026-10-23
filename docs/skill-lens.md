@@ -16,7 +16,9 @@ skill-lens run skills/planning-with-files --baseline none --repeat 5 \
   arm five times.
 - `claude-code` uses your Claude Code login. `pydantic-ai` and the judge use `OPENAI_API_KEY`.
 - With only a Claude Code login, set `judge = "claude-code"` in `skill-lens.toml` and run
-  `--runner claude-code` alone.
+  `--runner claude-code` alone. Without a supported sandbox backend, also pass
+  `--no-allow-scripts`. This disables skill-lens's framework script tool; Claude Code still
+  runs its own shell commands.
 - The exit code is the CI contract: `0` the gate passed, `1` it failed, `2` a mistake in the
   eval files.
 
@@ -33,13 +35,17 @@ assertions plus two on the contents:
 | `progress.md` records a concrete action, not only template fields | LLM judge |
 
 Every check accepts the files in either place the skill uses: the project root (legacy layout)
-or one named plan directory, `.planning/<date>-<slug>/`. Exactly one plan must exist; a plan in
-both places fails.
+or a named plan directory, `.planning/<date>-<slug>/`. Each filename must have exactly one
+match. skill-lens 0.23.0 checks filenames independently, so files split across different plan
+directories can still pass. This case does not verify that all three files share one directory.
 
 ## Results
 
-skill-lens 0.23.0, planning-with-files v3.25.0 (`de837a9`), Claude Code 2.1.289. Judge:
+Contributor-reported measurements using skill-lens 0.23.0, planning-with-files v3.25.0
+(`de837a9`), Claude Code 2.1.289. Judge:
 `openai:gpt-6-luna`. Five runs per arm; tokens, cost and latency are means per run.
+Maintainer review checked the configuration and assertions offline; it did not rerun these
+paid evaluations. The sandbox requirement below was added after these measurements.
 
 | Runner and model | With skill | Without skill | Tokens | Cost | Latency |
 | --- | --- | --- | --- | --- | --- |
@@ -48,14 +54,14 @@ skill-lens 0.23.0, planning-with-files v3.25.0 (`de837a9`), Claude Code 2.1.289.
 
 Total: $2.43 for the 20 runs, plus $0.004 for the judge.
 
-What it shows:
+Observations from these runs:
 
-- **The skill is what produces the files.** Without it, neither agent wrote a planning file in
-  any of the 10 runs.
+- Without the skill, neither agent wrote a planning file in any of the 10 runs.
 - **Claude Code sometimes creates the files and leaves them empty.** The two failed runs kept
   the empty `findings.md` (and in one, `progress.md`) that `init-session.sh` writes, and one
-  plan had no `## Goal`. The same pattern showed up with Sonnet under PydanticAI, so it follows
-  the model, not the runner. `gpt-6-luna` filled every file in every run.
+  plan had no `## Goal`. The contributor also observed this pattern with Sonnet under
+  PydanticAI. This small sample does not isolate model, runner or environment effects.
+  `gpt-6-luna` filled every file in the five reported runs with the skill.
 - **Both layouts happen.** PydanticAI used the project root in 2 of 5 runs and a named plan
   directory in 3; Claude Code always used a named directory.
 
@@ -70,14 +76,19 @@ What it shows:
   `$HOME/.claude/skills/planning-with-files/` when present, so a personal install can affect a
   run.
 - PydanticAI runs the skill's scripts through skill-lens's own sandbox (`sandbox-exec` on
-  macOS, `bwrap` on Linux): no network, no writes outside the run's directory.
+  macOS, `bwrap` on Linux). The configuration requires a working sandbox backend for script
+  execution and refuses to fall back to unsandboxed scripts. This framework path needs a
+  supported backend; it is unavailable on native Windows. With only Claude Code available,
+  use the CLI-only runner and judge configuration above with `--no-allow-scripts`; its
+  process remains unsandboxed. Sandbox preflight otherwise runs even for a CLI-only run.
 
 ## Budgets
 
 - A `budget:` block is checked after a run ends; it fails the check, it does not stop spending.
 - Claude Code stops a run itself at `--max-budget-usd` (`1.00` in `skill-lens.toml`); such a run
   is reported as errored.
-- A timeout (`timeout_seconds`, 600 here) also stops a run.
+- The Claude Code runner's timeout (`timeout_seconds`, 600 here) also stops its run. This
+  setting does not impose an overall timeout on the PydanticAI runner.
 
 ## Known limits
 

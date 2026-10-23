@@ -26,6 +26,7 @@ min_pass_rate = 1.0
 # (scripts/init-session.sh), as Claude Code does through its shell. The
 # scripts run in skill-lens's sandbox (sandbox-exec on macOS, bwrap on Linux).
 allow_scripts = true
+script_sandbox = "required"
 concurrency = 2
 
 [runners.claude-code]

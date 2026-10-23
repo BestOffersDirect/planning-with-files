@@ -12,8 +12,8 @@ cases:
   # assertions, so the numbers can be compared with that table. The skill
   # keeps the files either in a named plan directory, .planning/<date>-<slug>/
   # (whose name changes on every run), or in the project root (its legacy
-  # layout). Each check accepts either place, and exactly one plan must
-  # exist: a plan in both places, or two plan directories, fails.
+  # layout). Each filename must have exactly one match across both places.
+  # Checks are independent: files split across directories can still pass.
   - name: creates-the-three-files
     task: Build a Python CLI todo tool with persistence.
     workspace: {}

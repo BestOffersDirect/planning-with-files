@@ -6,6 +6,8 @@ Native [OpenCode](https://opencode.ai) plugin for [planning-with-files](https://
 
 Version 1.2.0 supports OpenCode 1.18.21 and OpenCode 2.0.21. For OpenCode 2, add the plugin to `opencode.json` (project) or `~/.config/opencode/opencode.json` (global):
 
+Source version 1.2.1 adds `attestationValid` to status. The pinned installation examples below remain on 1.2.0 until the separate npm publication.
+
 ```json
 {
   "plugins": ["opencode-planning-with-files@1.2.0"]
