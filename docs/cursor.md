@@ -10,6 +10,10 @@ How to use planning-with-files with Cursor IDE — now with full hook support.
 
 Run from your project root:
 
+Before copying, check `.cursor/hooks/` for user-owned scripts with the same names
+as the supplied scripts, such as `stop.sh`. Back up or rename those files and
+update their existing registrations first; the copy replaces same-named scripts.
+
 ```bash
 git clone https://github.com/OthmanAdi/planning-with-files.git
 mkdir -p .cursor/skills

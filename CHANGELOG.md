@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [3.25.2] - 2026-10-24
+
+### Added
+- Read-only plan-format validation through `check-complete.sh --validate` and PowerShell `-Validate`. It reports plans with no recognized phases or missing/ambiguous native phase statuses. `plan-doctor.sh` now surfaces these format problems without rewriting plans or changing attestation.
+- The optional skill-lens suite uses version 0.25.0 and adds a two-session resume case. Maintainer regression fixtures prevent a phase check from accepting a later subsection's status; published measurements remain attributed to the contributor's earlier runs (PR #338).
+
+### Fixed
+- Plan-creation guidance requires the bundled initializer and native format validation before substantive work. Existing user plans remain owner-reviewed. The two preserved blind cases now produce five recognized, completed phases and pass functional checks; their earlier plans had no recognized phases.
+- Spanish initialization uses the markers its existing native checker recognizes. Localized PowerShell scripts retain their original UTF-8 encoding markers for Windows PowerShell 5.1.
+- Copilot startup and post-tool context uses top-level `additionalContext` for the current harness. The guide documents the legacy VS Code Local migration boundary (PR #340, #335).
+- Cursor bash readers share selection classification. Explicit named plans work, while ambiguous, invalid and unsafe selections do not fall back to unrelated root plans. Existing permission decisions and stop limits remain unchanged (PR #342, #336).
+- Cursor installation instructions avoid a nested `.cursor/.cursor/` directory and preserve existing hook registrations, with merge guidance for Unix and Windows configurations (PR #341, #337).
+
+### Thanks
+- Emad Mokhtar (@EmadMokhtar), for the updated optional evaluation and resume case (PR #338).
+- Thanut Jongteerathanachote (@winxtxrgit), for the Copilot context schema fix and regression tests (PR #340).
+- Parman Mohammadalizadeh (@MannXo), for the Cursor installation and hook-merge guidance (PR #341).
+- WU Leizhi (@MbappeWU), for the Cursor bash plan-selection fix and regression tests (PR #342).
+
 ## [3.25.1] - 2026-10-23
 
 ### Added
