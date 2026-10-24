@@ -93,6 +93,18 @@ Vor einer komplexen Aufgabe:
 
 > **Hinweis:** Planungsdateien kommen in das ausgewählte Aufgabenverzeichnis deines Projekts, nicht in das Skill-Installationsverzeichnis.
 
+## Vertrag für neue Pläne
+
+Initialisiere einen neuen Plan vor der Umsetzung mit `init-session.sh` (PowerShell: `init-session.ps1`) aus dem installierten Skill-Verzeichnis. Passe das erzeugte Gerüst an, statt einen eigenen kompakten Plan zu schreiben. Prüfe danach den expliziten Planpfad:
+
+```sh
+sh "$PWF_SKILL_DIR/scripts/check-complete.sh" --validate path/to/task_plan.md
+```
+
+`PWF_SKILL_DIR` ist das Verzeichnis der gerade gelesenen SKILL.md. Unter PowerShell gilt `check-complete.ps1 -Validate -PlanFile path/to/task_plan.md`. Jede Phase behält `### Phase N: Name` und genau einen Status `**Status:** pending`, `**Status:** in_progress` oder `**Status:** complete`. Eine Liste unter `## Phases` reicht nicht. Die Prüfung muss vor der Umsetzung und nach Änderungen an der Phasenstruktur bestehen. Sie prüft das Format, nicht den Abschluss oder die Attestierung.
+
+Bestehende Pläne bleiben erhalten. Melde Formatfehler ihrem Eigentümer, ohne sie automatisch umzuschreiben. Wenn die Hilfsskripte nicht ausführbar sind, kopiere die mitgelieferte Vorlage unverändert und benenne die fehlende native Prüfung.
+
 ## Kernmuster
 
 ```

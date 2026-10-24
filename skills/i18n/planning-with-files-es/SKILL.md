@@ -100,6 +100,18 @@ Antes de una tarea compleja:
 
 > **Nota:** Los archivos de planificación van en el directorio de tarea seleccionado dentro de tu proyecto, no en el directorio de instalación del skill.
 
+## Contrato para crear planes
+
+Antes de implementar una tarea nueva, ejecuta `init-session.sh` (PowerShell: `init-session.ps1`) desde la instalación del skill. Adapta el esquema generado; no lo sustituyas por una lista resumida. Define `PWF_SKILL_DIR` como el directorio de la SKILL.md que acabas de leer y valida la ruta explícita:
+
+```sh
+sh "$PWF_SKILL_DIR/scripts/check-complete.sh" --validate path/to/task_plan.md
+```
+
+En PowerShell: `check-complete.ps1 -Validate -PlanFile path/to/task_plan.md`. Conserva `### Phase N: Nombre` y exactamente un estado `**Estado:** pending`, `**Estado:** in_progress` o `**Estado:** complete` por fase. Una lista bajo `## Fases` no basta. La validación debe pasar antes de implementar y después de cambiar la estructura. Comprueba el formato, no la finalización ni la atestación.
+
+Conserva los planes existentes. Informa de formatos inválidos para que su responsable los revise; no los reescribas automáticamente. Si no puedes ejecutar los scripts, copia exactamente la plantilla incluida e indica que no se realizó la validación nativa.
+
 ## Patrón central
 
 ```
