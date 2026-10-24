@@ -74,16 +74,17 @@ cases:
         Do the next phase only, then stop.
     workspace: {}
     assertions:
-      # The Status line of the "### Phase 2" section says complete. The section
-      # ends at the next heading of level 1 to 3 ("#", "##" or "###").
+      # The first Status line of the "### Phase 2" section says complete.
+      # Do not skip it for a later child section's status. The section ends
+      # at the next heading of level 1 to 3 ("#", "##" or "###").
       - kind: regex
-        value: '(?ms)^### Phase 2\b(?:(?!^#{1,3} ).)*?\*\*Status:\*\*[ \t]*complete\b'
+        value: '(?ms)^### Phase 2\b(?:(?!^#{1,3} |\*\*Status:\*\*).)*?\*\*Status:\*\*[ \t]*complete\b'
         file_glob: [task_plan.md, .planning/*/task_plan.md]
-      # Phase 3 was left for later: its Status line says anything but complete
+      # Phase 3 was left for later: its first Status line says anything but complete
       # (pending, in_progress, not_started, ...), in any letter case and after
       # any leading punctuation or emoji.
       - kind: regex
-        value: '(?ims)^### Phase 3\b(?:(?!^#{1,3} ).)*?\*\*Status:\*\*[ \t]*(?!\W*complete\b)\S'
+        value: '(?ims)^### Phase 3\b(?:(?!^#{1,3} |\*\*Status:\*\*).)*?\*\*Status:\*\*[ \t]*(?!\W*complete\b)\S'
         file_glob: [task_plan.md, .planning/*/task_plan.md]
     judge:
       artifacts:

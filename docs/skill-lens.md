@@ -83,6 +83,10 @@ Contributor-reported measurements using skill-lens 0.25.0, planning-with-files v
 required, `sandbox-exec` on macOS. Judge: `openai:gpt-6-luna`. Five runs per arm; tokens,
 cost and latency are means per run. Both cases ran in one run, which cost $5.87 in all.
 
+These measurements predate the maintainer correction that binds each resume
+phase check to its first status line. The corrected assertions were verified
+offline; the model evaluations and reported costs below were not rerun.
+
 ### `creates-the-three-files`
 
 | Runner and model | With skill | Without skill | Tokens | Cost | Latency |
