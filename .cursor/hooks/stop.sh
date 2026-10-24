@@ -9,26 +9,11 @@
 [ "${PLANNING_DISABLED:-}" = "1" ] && exit 0
 
 HOOK_DIR="$(cd "$(dirname "$0")" 2>/dev/null && pwd)" || exit 0
-RESOLVER="${HOOK_DIR}/resolve-plan-dir.sh"
-
-PLAN_FILE=""
-if [ -f "$RESOLVER" ]; then
-    PLAN_DIR="$(sh "$RESOLVER" 2>/dev/null)" || PLAN_DIR=""
-    if [ -n "$PLAN_DIR" ]; then
-        PLAN_FILE="${PLAN_DIR}/task_plan.md"
-    elif [ -n "${PLAN_ID:-}" ]; then
-        # Explicit PLAN_ID is a binding (#237). Allow stop rather than gating
-        # on the wrong (legacy root) plan — matches docs/cursor.md.
-        exit 0
-    fi
-fi
-if [ -z "$PLAN_FILE" ]; then
-    if [ -n "${PWF_PLAN_ROOT:-}" ] && [ -d "${PWF_PLAN_ROOT}" ]; then
-        PLAN_FILE="${PWF_PLAN_ROOT}/task_plan.md"
-    else
-        PLAN_FILE="task_plan.md"
-    fi
-fi
+[ -f "${HOOK_DIR}/resolve-plan-context.sh" ] || exit 0
+. "${HOOK_DIR}/resolve-plan-context.sh"
+cursor_resolve_plan_context "${HOOK_DIR}"
+[ -n "${CURSOR_PLAN_DIR}" ] || exit 0
+PLAN_FILE="${CURSOR_PLAN_DIR}/task_plan.md"
 
 if [ ! -f "$PLAN_FILE" ]; then
     # No plan file = no planning session, allow stop

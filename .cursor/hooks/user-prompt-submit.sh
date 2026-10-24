@@ -8,60 +8,25 @@
 [ "${PLANNING_DISABLED:-}" = "1" ] && exit 0
 
 HOOK_DIR="$(cd "$(dirname "$0")" 2>/dev/null && pwd)" || exit 0
-RESOLVER="${HOOK_DIR}/resolve-plan-dir.sh"
-
-# --- PWF_PLAN_ROOT: absolute plan-root binding (issue #212). ---
-# A thread whose cwd is a shared PARENT of the real project can be pinned to
-# the nested project root; every planning-state read below goes through the
-# prefix, and the shared resolver honors the same variable. An explicit but
-# broken pin fails CLOSED: one notice, nothing injected, never a silent fall
-# back to the ambiguous cwd plan the caller was escaping. With the var unset
-# the prefix is EMPTY so every path string stays byte-identical to the legacy
-# shape. Wording matches scripts/inject-plan.sh.
-PLAN_PREFIX=""
-LEGACY_ROOT="$(pwd)"
-if [ -n "${PWF_PLAN_ROOT:-}" ]; then
-    case "${PWF_PLAN_ROOT}" in
-        /*|[A-Za-z]:[\\/]*) ;;
+[ -f "${HOOK_DIR}/resolve-plan-context.sh" ] || exit 0
+. "${HOOK_DIR}/resolve-plan-context.sh"
+cursor_resolve_plan_context "${HOOK_DIR}"
+if [ -z "${CURSOR_PLAN_DIR}" ]; then
+    case "${CURSOR_PLAN_STATUS}" in
+        ambiguous)
+            echo "[planning-with-files] Multiple plans are available. Set PLAN_ID=<slug> for this session; nothing injected." ;;
+        invalid-pin)
+            echo "[planning-with-files] PWF_PLAN_ROOT is not a supported absolute local directory: ${CURSOR_PLAN_DETAIL} — nothing injected." ;;
+        invalid-plan-id)
+            echo "[planning-with-files] PLAN_ID does not name a plan directory under .planning: ${CURSOR_PLAN_DETAIL} — nothing injected. Fix or unset the pin; a broken pin fails closed rather than selecting another plan." ;;
+        refused) ;;
         *)
-            echo "[planning-with-files] PWF_PLAN_ROOT must be an absolute local path; nothing injected."
-            exit 0
-            ;;
+            echo "[planning-with-files] The selected plan could not be resolved safely (${CURSOR_PLAN_DETAIL}). Check PLAN_ID, PWF_PLAN_ROOT, and .active_plan; nothing injected." ;;
     esac
-    if [ -d "${PWF_PLAN_ROOT}" ]; then
-        LEGACY_ROOT="${PWF_PLAN_ROOT}"
-        PLAN_PREFIX="${PWF_PLAN_ROOT}/"
-        export PWF_PLAN_ROOT
-    else
-        echo "[planning-with-files] PWF_PLAN_ROOT is not a directory: ${PWF_PLAN_ROOT} — nothing injected."
-        exit 0
-    fi
-fi
-
-# Resolve the selected named plan through the shared skill resolver (#336).
-PLAN_DIR=""
-PLAN_AMBIGUOUS=0
-if [ -f "$RESOLVER" ]; then
-    PLAN_DIR="$(sh "$RESOLVER" 2>/dev/null)" || PLAN_DIR=""
-    if [ -z "$PLAN_DIR" ] && [ "$(sh "$RESOLVER" --check-ambiguity 2>/dev/null)" = "PWF_PLAN_AMBIGUOUS_V1" ]; then
-        PLAN_AMBIGUOUS=1
-    fi
-fi
-
-if [ -n "$PLAN_DIR" ]; then
-    PLAN_FILE="${PLAN_DIR}/task_plan.md"
-    PROGRESS_FILE="${PLAN_DIR}/progress.md"
-elif [ -n "${PLAN_ID:-}" ]; then
-    # Explicit PLAN_ID is a binding (issue #237): fail closed, no legacy fallback.
-    echo "[planning-with-files] PLAN_ID does not name a plan directory under .planning: ${PLAN_ID} — nothing injected. Fix or unset the pin; a broken pin fails closed rather than selecting another plan."
     exit 0
-elif [ "$PLAN_AMBIGUOUS" = "1" ]; then
-    echo "[planning-with-files] Multiple plans are available. Set PLAN_ID=<slug> for this session; nothing injected."
-    exit 0
-else
-    PLAN_FILE="${PLAN_PREFIX}task_plan.md"
-    PROGRESS_FILE="${PLAN_PREFIX}progress.md"
 fi
+PLAN_FILE="${CURSOR_PLAN_DIR}/task_plan.md"
+PROGRESS_FILE="${CURSOR_PLAN_DIR}/progress.md"
 
 if [ ! -f "$PLAN_FILE" ]; then
     exit 0
