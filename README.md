@@ -120,7 +120,7 @@ Code, documentation, and issue contributors. Select a portrait to open a GitHub 
 <a id="community"></a>
 
 <details>
-<summary><strong>🌍 What the community shipped</strong></summary>
+<summary><div align="center"><strong>🌍 Built with Planning with Files</strong></div></summary>
 
 ### Forks & Extensions
 
